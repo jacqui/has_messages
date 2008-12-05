@@ -2,6 +2,20 @@
 
 +has_messages+ demonstrates a reference implementation for sending messages between users.
 
+== This fork
+
+I forked has_messages because I wanted to use it in a Rails 1.2 app, which required changing a few things around. I also wanted some additional features like an easy way to return a user's unread/read/received messages - the current implementation seemed to require you to write a lot of code (relatively speaking) to get to that point.
+
+FYI, I have aliased named_scope to has_finder, which is a plugin we use in this Rails 1.2 app. If you try to use the in this fork and find it complains about named_scope being an undefined method, that's probably your issue. Check out Mislav's comment in the discussion on Ruby Forum: http://www.ruby-forum.com/topic/153514#676946
+
+To install has_finder:
+
+$ sudo gem install has_finder
+
+There is also a plugin version:
+
+http://pivotalrb.rubyforge.org/svn/has_finder/trunk/has_finder
+
 == Resources
 
 API
