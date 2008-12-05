@@ -39,17 +39,11 @@ module PluginAWeek #:nodoc:
                     :class_name => 'Message',
                     :conditions => {:hidden_at => nil},
                     :order => 'messages.created_at ASC'
-        has_many  :received_messages,
+        has_many  :message_recipients,
                     :as => :receiver,
                     :class_name => 'MessageRecipient',
                     :include => :message,
                     :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ?', 'sent'],
-                    :order => 'messages.created_at ASC'
-        has_many  :unread_messages,
-                    :as => :receiver,
-                    :class_name => 'MessageRecipient',
-                    :include => :message,
-                    :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ? AND message_recipients.state = ?', 'sent', 'unread'],
                     :order => 'messages.created_at ASC'
         include PluginAWeek::HasMessages::InstanceMethods
       end
@@ -66,6 +60,18 @@ module PluginAWeek #:nodoc:
       # messages that are currently in the "queued" or "sent" states.
       def sent_messages
         messages.with_states(%w(queued sent))
+      end
+
+      def received_messages
+        message_recipients.map{|rm| rm.message} rescue []
+      end
+      
+      def unread_messages
+        message_recipients.select{|recipient| recipient.state == 'unread' }.map{|m| m.message } rescue []
+      end
+      
+      def read_messages
+        message_recipients.select{|recipient| recipient.state == 'read' }.map{|m| m.message } rescue []
       end
     end
   end
