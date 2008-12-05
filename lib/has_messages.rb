@@ -45,7 +45,12 @@ module PluginAWeek #:nodoc:
                     :include => :message,
                     :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ?', 'sent'],
                     :order => 'messages.created_at ASC'
-        
+        has_many  :unread_messages,
+                    :as => :receiver,
+                    :class_name => 'MessageRecipient',
+                    :include => :message,
+                    :conditions => ['message_recipients.hidden_at IS NULL AND messages.state = ? AND message_recipients.state = ?', 'sent', 'unread'],
+                    :order => 'messages.created_at ASC'
         include PluginAWeek::HasMessages::InstanceMethods
       end
     end
