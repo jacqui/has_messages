@@ -22,12 +22,11 @@
 # * +hide!+ -Hides the message from the sender's inbox
 # * +unhide!+ - Makes the message visible again
 class Message < ActiveRecord::Base
-  belongs_to  :sender,
-                :polymorphic => true
+  belongs_to  :sender, :polymorphic => true
   has_many    :recipients,
-                :class_name => 'MessageRecipient',
-                :order => 'kind DESC, position ASC',
-                :dependent => :destroy
+              :class_name => 'MessageRecipient',
+              :order => 'kind DESC, position ASC',
+              :dependent => :destroy
   
   validates_presence_of :state,
                         :sender_id,
@@ -39,8 +38,7 @@ class Message < ActiveRecord::Base
   
   after_save :update_recipients
   
-  named_scope :visible,
-                :conditions => {:hidden_at => nil}
+  named_scope :visible, :conditions => {:hidden_at => nil}
   
   # Define actions for the message
   state_machine :state, :initial => 'unsent' do
@@ -114,6 +112,15 @@ class Message < ActiveRecord::Base
   # Is this message still hidden from the sender's inbox?
   def hidden?
     hidden_at?
+  end
+  
+  # helper method that calls view! on the message recipient object for a given message
+  def view!(recipient)
+    valid_recipients = recipients.select{|r| r.receiver == recipient}
+    raise Exception, "not a valid recipient of this email" if valid_recipients.empty?
+    
+    valid_recipients.each{|mr| mr.view!}
+    recipient.reload # hate having to do this but I'm not sure how else to accomodate the updates due to caching(?)
   end
   
   private
